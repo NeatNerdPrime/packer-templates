@@ -36,7 +36,7 @@ variable "boot_wait" {
 
 variable "box_version" {
   type        = string
-  default     = "20.7.20250715"
+  default     = "20.9.20260127"
   description = "Version number of this Vagrant box."
 }
 
@@ -274,7 +274,7 @@ variable "vmware_guest_os_type" {
 
 variable "vmware_hardware_version" {
   type        = string
-  default     = "9"
+  default     = "13"
   description = "Virtual hardware version of VMware box."
 }
 
