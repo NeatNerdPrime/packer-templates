@@ -1,6 +1,6 @@
-# Packer templates for Alpine Linux 3.22.1
+# Packer templates for Alpine Linux 3.22.3
 
-Templates to create Vagrant boxes for Alpine Linux 3.22.1. (x86_64,
+Templates to create Vagrant boxes for Alpine Linux 3.22.3. (x86_64,
 x86, and aarch64)
 
 ## Prerequisites
@@ -61,17 +61,17 @@ packer build -only=virtualbox-iso.default \
 ```
 
 You will find a vagrant box file named
-`Alpine-standard-3.22-minimal-v22.1.20250715-x86_64-virtualbox.box` in
+`Alpine-standard-3.22-minimal-v22.3.20260127-x86_64-virtualbox.box` in
 the same directory after the command has succeeded.
 
 Then you can add the box named
-`Alpine-standard-3.22-minimal-v22.1.20250715-x86_64`
+`Alpine-standard-3.22-minimal-v22.3.20260127-x86_64`
 to your box list by the following command:
 
 ```
 vagrant box add \
-  Alpine-standard-3.22-minimal-v22.1.20250715-x86_64-virtualbox.box \
-  --name Alpine-standard-3.22-minimal-v22.1.20250715-x86_64 \
+  Alpine-standard-3.22-minimal-v22.3.20260127-x86_64-virtualbox.box \
+  --name Alpine-standard-3.22-minimal-v22.3.20260127-x86_64 \
   --provider virtualbox
 ```
 
@@ -89,17 +89,17 @@ packer build -only=vmware-iso.default \
 ```
 
 You will find a vagrant box file named
-`Alpine-standard-3.22-minimal-v22.1.20250715-x86_64-vmware.box` in the
+`Alpine-standard-3.22-minimal-v22.3.20260127-x86_64-vmware.box` in the
 same directory after the command has succeeded.
 
 Then you can add the box named
-`Alpine-standard-3.22-minimal-v22.1.20250715-x86_64` to your box list
+`Alpine-standard-3.22-minimal-v22.3.20260127-x86_64` to your box list
 by the following command:
 
 ```
 vagrant box add \
-  Alpine-standard-3.22-minimal-v22.1.20250715-x86_64-vmware.box \
-  --name Alpine-standard-3.22-minimal-v22.1.20250715-x86_64 \
+  Alpine-standard-3.22-minimal-v22.3.20260127-x86_64-vmware.box \
+  --name Alpine-standard-3.22-minimal-v22.3.20260127-x86_64 \
   --provider vmware
 ```
 
@@ -150,17 +150,17 @@ packer build -only=qemu.default \
 ```
 
 You will find a vagrant box file named
-`Alpine-standard-3.22-minimal-v22.1.20250715-x86_64-libvirt.box` in the
+`Alpine-standard-3.22-minimal-v22.3.20260127-x86_64-libvirt.box` in the
 same directory after the command has succeeded.
 
 Then you can add the box named
-`Alpine-standard-3.22-minimal-v22.1.20250715-x86_64`
+`Alpine-standard-3.22-minimal-v22.3.20260127-x86_64`
 to your box list by the following command:
 
 ```
 vagrant box add \
-  Alpine-standard-3.22-minimal-v22.1.20250715-x86_64-libvirt.box \
-  --name Alpine-standard-3.22-minimal-v22.1.20250715-x86_64 \
+  Alpine-standard-3.22-minimal-v22.3.20260127-x86_64-libvirt.box \
+  --name Alpine-standard-3.22-minimal-v22.3.20260127-x86_64 \
   --provider libvirt
 ```
 
@@ -181,17 +181,17 @@ packer build -only=hyperv-iso.default \
 ```
 
 You will find a vagrant box file named
-`Alpine-standard-3.22-minimal-v22.1.20250715-x86_64-hyperv.box`
+`Alpine-standard-3.22-minimal-v22.3.20260127-x86_64-hyperv.box`
 in the same directory after the command has succeeded.
 
 Then you can add the box named
-`Alpine-standard-3.22-minimal-v22.1.20250715-x86_64`
+`Alpine-standard-3.22-minimal-v22.3.20260127-x86_64`
 to your box list by the following command:
 
 ```
 vagrant box add \
-  Alpine-standard-3.22-minimal-v22.1.20250715-x86_64-hyperv.box \
-  --name Alpine-standard-3.22-minimal-v22.1.20250715-x86_64 \
+  Alpine-standard-3.22-minimal-v22.3.20260127-x86_64-hyperv.box \
+  --name Alpine-standard-3.22-minimal-v22.3.20260127-x86_64 \
   --provider hyperv
 ```
 
@@ -209,17 +209,17 @@ packer build -only=parallels-iso.default \
 ```
 
 You will find a vagrant box file named
-`Alpine-standard-3.22-minimal-v22.1.20250715-x86_64-parallels.box` in
+`Alpine-standard-3.22-minimal-v22.3.20260127-x86_64-parallels.box` in
 the same directory after the command has succeeded.
 
 Then you can add the box named
-`Alpine-standard-3.22-minimal-v22.1.20250715-x86_64`
+`Alpine-standard-3.22-minimal-v22.3.20260127-x86_64`
 to your box list by the following command:
 
 ```
 vagrant box add \
-  Alpine-standard-3.22-minimal-v22.1.20250715-x86_64-parallels.box \
-  --name Alpine-standard-3.22-minimal-v22.1.20250715-x86_64 \
+  Alpine-standard-3.22-minimal-v22.3.20260127-x86_64-parallels.box \
+  --name Alpine-standard-3.22-minimal-v22.3.20260127-x86_64 \
   --provider parallels
 ```
 
@@ -355,4 +355,4 @@ or `-var-file` command line options to `packer`:
 
 - - -
 
-Copyright &copy; 2025 Upperstream.
+Copyright &copy; 2025, 2026 Upperstream.

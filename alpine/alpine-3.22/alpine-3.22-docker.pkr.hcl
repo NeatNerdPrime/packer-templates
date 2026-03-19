@@ -36,7 +36,7 @@ variable "boot_wait" {
 
 variable "box_version" {
   type        = string
-  default     = "22.1.20250715"
+  default     = "22.3.20260127"
   description = "Version number of this Vagrant box."
 }
 
@@ -54,13 +54,13 @@ variable "disk_size" {
 
 variable "docker_version" {
   type        = string
-  default     = "28.3.0-r0"
+  default     = "28.3.3-r5"
   description = "Version of the Docker package to install. Varies by architecture."
 }
 
 variable "docker_compose_version" {
   type        = string
-  default     = "2.36.2-r0"
+  default     = "2.36.2-r5"
   description = "Version of the docker-cli-compose package to install. Varies by architecture."
 }
 

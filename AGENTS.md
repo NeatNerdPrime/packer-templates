@@ -190,17 +190,15 @@ available version of the packages, do the following:
      (e.g., `x86_64`, `aarch64`) based on the template context.
    * Use one of the following methods to obtain the latest package
      version:
+
      a) If working directly on an Alpine Linux system:
         * Use `apk search` to query the package index
-        * Example: `apk search -v --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.21/main <package-name>`
+        * Example: `apk search -v --no-cache --repository
+          https://dl-cdn.alpinelinux.org/alpine/v3.21/main <package-name>`
+
      b) For remote or cross-platform version checking:
-        * Visit the Alpine Linux package website:
-          `https://pkgs.alpinelinux.org/package/<branch>/<repo>/<arch>/<package-name>`,
-          where `<branch>` denotes the Alpine Linux release version such
-          as `v3.21` and `<repo>` can be either `main` or `community`
-        * Manually check the latest version
-        * Use web scraping tools or API calls to extract the version if
-          needed
+        * Use the shell script @/alpine/fetch_package_version.sh to
+          collect package version numbers
    * Verify the extracted version is compatible with the target Alpine
      Linux version
    * Note the extracted version number.

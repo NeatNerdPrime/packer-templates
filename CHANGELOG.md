@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 * Added
+  * [Alpine](alpine/README.md): Add `fetch_package_version.sh` shell
+    script for collecting package version numbers.
   * [FreeBSD](freebsd/README.md): Add templates for FreeBSD 15.0-RELEASE.
 * Changed
   * [Alpine 3.19](alpine/alpine-3.19/README.md): Upgrade templates to
@@ -11,6 +13,9 @@
     Alpine Linux 3.20.9.
   * [Alpine 3.21](alpine/alpine-3.21/README.md): Upgrade templates to
     Alpine Linux 3.21.6.
+  * [Alpine 3.22](alpine/alpine-3.22/README.md): Upgrade templates to
+    Alpine Linux 3.22.3.
+  * [AGENTS.md](AGENTS.md): Update the instruction for Alpine Linux.
 
 ## [20260310][]
 
