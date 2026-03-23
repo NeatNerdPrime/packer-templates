@@ -36,7 +36,7 @@ variable "boot_wait" {
 
 variable "box_version" {
   type        = string
-  default     = "13.1.20250906"
+  default     = "13.4.20260314"
   description = "Version number of this Vagrant box."
 }
 
@@ -120,7 +120,7 @@ variable "install_from_dvd" {
 
 variable "iso_checksum" {
   type        = string
-  default     = "sha256:bfc338e671fd5a9f6d4a65cbf728c674c468e87c063f6fb324fc04677dc0d23d"
+  default     = "sha256:bbabd5db47f0eec53a3f8b310586eb708f7d4ea28d9c23e78bde5369e04c08ef"
   description = "SHA256 checksum of the install media."
 }
 
@@ -132,7 +132,7 @@ variable "iso_name" {
 
 variable "iso_path" {
   type        = string
-  default     = "Debian13.1/main/installer-amd64/20250803+deb13u1/images/netboot"
+  default     = "Debian13.4/main/installer-amd64/20250803+deb13u4/images/netboot"
   description = "Relative path to search the install media."
 }
 
@@ -255,7 +255,7 @@ variable "virtualbox_guest_os_type" {
 
 variable "virtualbox_version" {
   type        = string
-  default     = "7.0.6"
+  default     = "7.2.6"
   description = "Targeting VirtualBox version."
 }
 
@@ -657,13 +657,13 @@ build {
     only = ["virtualbox-iso.default"]
     scripts = [
       "../provisioners/linux-headers.sh",
-      "../provisioners/virtualbox.sh"
+      "../provisioners/virtualbox_72.sh"
     ]
   }
 
   provisioner "shell" {
     environment_vars = [
-      "OPEN_VM_TOOLS=open-vm-tools=2:12.5.0-2"
+      "OPEN_VM_TOOLS=open-vm-tools=2:12.5.0-2+deb13u1"
     ]
     only = [
       "vmware-iso.default",

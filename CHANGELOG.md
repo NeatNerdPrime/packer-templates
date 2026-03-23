@@ -18,6 +18,8 @@
   * [Alpine 3.22](alpine/alpine-3.22/README.md): Upgrade templates to
     Alpine Linux 3.22.3.
   * [AGENTS.md](AGENTS.md): Update the instruction for Alpine Linux.
+  * [Debian 13](debian/debian-13/README.md): Upgrade templates to
+    Debian 13.4.
 
 ## [20260310][]
 
