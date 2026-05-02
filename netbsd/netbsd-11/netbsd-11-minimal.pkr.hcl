@@ -25,6 +25,10 @@ packer {
       version = ">= 1.0.11"
       source  = "github.com/hashicorp/vmware"
     }
+    utm = {
+      version = ">=v4.0.0"
+      source  = "github.com/naveenrajm7/utm"
+    }
   }
 }
 
@@ -308,6 +312,12 @@ variable "vmware_network_adapter_type" {
   description = "Network adapter type for VMware box."
 }
 
+variable "utm_keep_registered" {
+  type        = bool
+  default     = false
+  description = "Set this to true to keep the VM registered with UTM"
+}
+
 locals {
   boot_command_common = [
     "1<wait10><wait10>",                                          # Welcome message
@@ -327,13 +337,10 @@ locals {
     "${local.selector_text_processors[var.arch]}",                # Distribution sets - Text processing tools - m (i386: l)
     "x<wait><enter><wait>",                                       # Distribution sets - Install selected sets
     "a<enter><wait10><wait10><wait10><wait10>",                   # Install from - CD-ROM
-    "${local.wait_for_MAKEDEV[var.arch]}",                        # /bin/sh MAKEDEV all - Hit enter to continue; aarch64 only
-    "${local.wait_for_certctl[var.arch]}",                        # /usr/sbin/certctl rehash - Hit enter to continue; aarch64 only
     "<wait5><enter><wait5>",                                      # The extraction of the selected sets for NetBSD is complete - Hit Enter to continue
     "${var.ssh_password}<wait><enter><wait>",                     # New password - root password
     "${var.ssh_password}<wait><enter><wait>",                     # Weak password warning - root password
     "${var.ssh_password}<wait><enter><wait><wait>",               # Retype new password - root password
-    "${local.selector_random_number_generator[var.arch]}<wait5>", # Random number generator; not now - only for aarch64
     "g<wait><enter><wait>",                                       # Configure the additional items - Enable sshd
     "h<wait><enter><wait>",                                       # Configure the additional items - Enable ntpd
     "x<wait><enter><wait>",                                       # Configure the additional items - Finished configuring
@@ -375,10 +382,6 @@ locals {
     "i386" : "m<wait><enter><wait>",
     "aarch64" : "n<wait><enter><wait>"
   }
-  selector_random_number_generator = {
-    "amd64" : "",
-    "i386" : "",
-    "aarch64" : "x<wait><enter><wait>"
   }
   selector_install_script = {
     "generic" : [
@@ -408,16 +411,6 @@ locals {
       "EOF",
       "echo \"nameserver $GATEWAY\" > /mnt/etc/resolv.conf"
     ]
-  }
-  wait_for_MAKEDEV = {
-    "amd64" : "",
-    "i386" : ""
-    "aarch64" : "<enter><wait5>"
-  }
-  wait_for_certctl = {
-    "amd64" : "",
-    "i386" : ""
-    "aarch64" : "<enter><wait5>"
   }
   vm_name = "${var.vm_name}-${var.variant}-v${var.box_ver}-${var.arch}"
 }
@@ -638,11 +631,45 @@ source "vmware-iso" "esxi" {
   vnc_over_websocket = "${var.esxi_vnc_over_websocket}"
 }
 
+source "utm-iso" "default" {
+  boot_command = concat(
+    local.boot_command_common,
+    split("\n", format(join("\n", local.install_script_common), "ld4", var.partition_name))
+  )
+  boot_nopause          = true
+  boot_wait             = var.boot_wait
+  cpus                  = var.num_cpus
+  display_hardware_type = "virtio-gpu-pci"
+  display_nopause       = true
+  disk_size             = var.disk_size
+  export_nopause        = true
+  guest_additions_mode  = "disable"
+  http_content = {
+    "/install.sh" = templatefile("${path.root}/install.sh.pkrtpl.hcl", {
+      lines = local.selector_install_script["generic"]
+    })
+  }
+  hypervisor       = true
+  iso_checksum     = var.iso_checksum
+  iso_urls         = local.iso_urls
+  keep_registered  = var.utm_keep_registered
+  memory           = var.mem_size
+  output_directory = "output/${local.vm_name}-utm"
+  ssh_username     = var.ssh_username
+  ssh_password     = var.ssh_password
+  shutdown_command = "/sbin/shutdown -p now"
+  uefi_boot        = true
+  vm_backend       = "qemu"
+  vm_icon          = "netbsd"
+  vm_name          = "${local.vm_name}"
+}
+
 build {
   sources = [
     "source.hyperv-iso.default",
     "source.parallels-iso.default",
     "source.qemu.default",
+    "source.utm-iso.default",
     "source.virtualbox-iso.default",
     "source.vmware-iso.default",
     "source.vmware-iso.esxi"
@@ -701,5 +728,15 @@ build {
     ]
     output               = "./${local.vm_name}-{{ .Provider }}.box"
     vagrantfile_template = "../vagrantfiles/Vagrantfile.NetBSD-8.3+"
+  }
+
+  post-processor "utm-vagrant" {
+    compression_level = 9
+    only = [
+      "utm-iso.default"
+    ]
+    output               = "./${local.vm_name}-{{ .Provider }}.box"
+    vagrantfile_template = "../vagrantfiles/Vagrantfile.NetBSD-8.3+"
+    architecture         = "arm64"
   }
 }

@@ -10,6 +10,7 @@ Templates to create Vagrant boxes for NetBSD 11.0 RC2 (amd64, i386, and aarch64)
 * [VMware][] Workstation version 17.0+ / VMware Fusion v13.0+
 * [ESXi][] (vSphere Hypervisor) version 7.0+
 * [QEMU][] version 4.2+ / [libvirt][] 6.0+
+* [UTM][] v4.7+
 * [Hyper-V][] on Windows 10
 
 [ESXi]: http://www.vmware.com/products/vsphere-hypervisor
@@ -19,6 +20,7 @@ Templates to create Vagrant boxes for NetBSD 11.0 RC2 (amd64, i386, and aarch64)
 [libvirt]: https://libvirt.org/ "libvirt: The virtualization API"
 [Packer]: https://www.packer.io/ "Packer by HashiCorp"
 [QEMU]: https://www.qemu.org/ "QEMU"
+[UTM]: https://mac.getutm.app/ "UTM | Virtual machines for Mac"
 [Vagrant]: https://www.vagrantup.com/ "Vagrant"
 [VirtualBox]: https://www.virtualbox.org/ "Oracle VM VirtualBox"
 [VMware]: http://www.vmware.com/
@@ -134,33 +136,29 @@ to your box list by the following command:
     vagrant box add NetBSD-11_RC-minimal-v2.20260306-amd64-hyperv.box \
         --name NetBSD-11_RC-minimal-v2.20260306-amd64 --provider hyperv
 
-### Experimental support for UTM
+### UTM
 
-This release includes a experimental template for [UTM][] using [UTM
-builder for Packer][].
-
-From the terminal, invoke the following command for UTM provider:
+This release includes support for building aarch64 boxes using UTM and
+the [UTM builder for Packer][].  From the terminal, invoke the following
+command:
 
     packer build -only=utm-iso.default \
         -var-file vars-netbsd-11-aarch64.pkrvars.hcl \
-        -var utm_keep_registered=true \
-        netbsd-11-minimal-utm.pkr.hcl
+        netbsd-11-minimal.pkr.hcl
 
-You will find a vagrant box file named `NetBSD-11_RC-minimal-v2.20260306-aarch64-utm.box`
-in the same directory after the command has succeeded.
+You can also use the same command with `netbsd-11-xorg.pkr.hcl`,
+`netbsd-11-dwm.pkr.hcl`, or `netbsd-11-xfce.pkr.hcl`.
 
-Set `utm_keep_registered` to `true` if you would like to keed the VM
+Set `utm_keep_registered` to `true` if you would like to keep the VM
 registered after build.
 
-Then you can add the box named `NetBSD-11_RC-minimal-v2.20260306`
-to your box list by the following command:
+Then add the box named `NetBSD-11_RC-minimal-v2.20260306-aarch64`:
 
     vagrant box add NetBSD-11_RC-minimal-v2.20260306-aarch64-utm.box \
-        --name NetBSD-11_RC-minimal-v2.20260306 --provider utm
+        --name NetBSD-11_RC-minimal-v2.20260306-aarch64 --provider utm
 
-UTM build intends to create an aarch64 VM image on Apple Silicon host.
+Note: UTM builds are intended for aarch64 images on Apple Silicon hosts.
 
-[UTM]: https://mac.getutm.app/ "UTM | Virtual machines for Mac"
 [UTM builder for Packer]: https://github.com/naveenrajm7/packer-plugin-utm
   "naveenrajm7/packer-plugin-utm: UTM builder for Packer"
 
@@ -194,13 +192,15 @@ use `doas`.
 
 ## Variants
 
+Each template supports the following builders: **VirtualBox**, **VMware**,
+**ESXi**, **Hyper-V**, **QEMU/libvirt**, and **UTM** (aarch64 on Apple Silicon).
+
 * `netbsd-11-minimal.pkr.hcl` - NetBSD 11.0 RC2
 * `netbsd-11-xorg.pkr.hcl` - NetBSD 11.0 RC2 + [X.Org][]
 * `netbsd-11-dwm.pkr.hcl` - NetBSD 11.0 RC2 + X.Org + [dwm][] + [st][] +
   [dmenu][], with [XDM] enabled
 * `netbsd-11-xfce.pkr.hcl` - NetBSD 11.0 RC2 + [Xfce][], with XDM
   enabled
-* `netbsd-11-minimal-utm.pkr.hcl` - NetBSD 11.0 RC2 for UTM
 
 While `netbsd-11-*.pkr.hcl` templates generate amd64 boxes by
 default, using `vars-netbsd-11-aarch64.pkrvars.hcl` generates
@@ -279,6 +279,8 @@ or `-var-file` command line options to `packer`:
   Default value is `vagrant`.
 * `vagrant_username` - User name during run time.  Vagrant box is set
   for this user.  Default value is `vagrant`.
+* `utm_keep_registered` - Set to `true` to keep the VM registered with
+  UTM after build.  Default value is `false`.
 * `vagrant_password` - Password for `user_name`.  Default value is
   `vagrant`.
 * `virtualbox_disk_name`

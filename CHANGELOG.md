@@ -20,6 +20,10 @@
   * [AGENTS.md](AGENTS.md): Update the instruction for Alpine Linux.
   * [Debian 13](debian/debian-13/README.md): Upgrade templates to
     Debian 13.4.
+  * [NetBSD 11.0](netbsd/netbsd-11/README.md):
+    * Upgrade templates to NetBSD 11.0_RC3.
+    * Merge standalone [UTM][] template into the main minimal template,
+      making UTM builder available alongside other builders.
 
 ## [20260310][]
 

@@ -25,6 +25,10 @@ packer {
       version = ">= 1.0.11"
       source  = "github.com/hashicorp/vmware"
     }
+    utm = {
+      version = ">=v4.0.0"
+      source  = "github.com/naveenrajm7/utm"
+    }
   }
 }
 
@@ -308,44 +312,47 @@ variable "vmware_network_adapter_type" {
   description = "Network adapter type for VMware box."
 }
 
+variable "utm_keep_registered" {
+  type        = bool
+  default     = false
+  description = "Set this to true to keep the VM registered with UTM"
+}
+
 locals {
   boot_command_common = [
-    "1<wait10><wait10>",                                          # Welcome message
-    "a<wait><enter><wait>",                                       # Installation messages in English
-    "${local.selector_keyboard_type[var.arch]}",                  # Keyboard type - US English; skip for aarch64
-    "a<wait><enter><wait>",                                       # NetBSD-11.0 Install System - Install NewtBSD to hard disk
-    "b<wait><enter><wait>",                                       # Shall we continue? - Yes
-    "a<wait><enter><wait>",                                       # Available disks - sd0
-    "a<wait><enter><wait>",                                       # Select a partitioning scheme - GPT
-    "${local.selector_partition_geometry[var.arch]}",             # Partition geometry - This is correct geometry; skip for aarch64
-    "b<wait><enter><wait>",                                       # Partition sizes - Use default partition sizes
-    "x<wait><enter><wait>",                                       # Review partition sizes - Partition sizes ok
-    "b<enter><wait10><wait10><wait10><wait>",                     # Shall we continue? - Yes
-    "${local.selector_bootblocks[var.arch]}",                     # Select bootblocks - Use BIOS console; skip for aarch64
-    "d<wait><enter><wait>",                                       # Select distribution - Custom installation
-    "${local.selector_compiler_tools[var.arch]}",                 # Distribution sets - Compiler tools - f (i386: e)
-    "${local.selector_manual_pages[var.arch]}",                   # Distribution sets - Manual pages - i (i386: h)
-    "${local.selector_text_processors[var.arch]}",                # Distribution sets - Text processing tools - m (i386: l)
-    "${local.selector_x11[var.arch]}",                            # Distribution sets - X11 sets - n (i386: m)
-    "f<wait><enter><wait>",                                       # Distribution sets - X11 sets - Select all the above sets
-    "b<wait><enter><wait>",                                       # Distribution sets - X11 sets - but X11 programming
-    "x<wait><enter><wait>",                                       # Distribution sets - X11 sets - Install selected X11 sets
-    "x<wait><enter><wait>",                                       # Distribution sets - Install selected sets
-    "a<enter><wait10><wait10><wait10><wait10><wait10><wait10>",   # Install from - CD-ROM
-    "<wait10><wait10>",                                           # Wait for installation
-    "${local.wait_for_MAKEDEV[var.arch]}",                        # /bin/sh MAKEDEV all - Hit enter to continue; aarch64 only
-    "${local.wait_for_certctl[var.arch]}",                        # /usr/sbin/certctl rehash - Hit enter to continue; aarch64 only
-    "<wait5><enter><wait5>",                                      # The extraction of the selected sets for NetBSD is complete - Hit Enter to continue
-    "${var.ssh_password}<wait><enter><wait>",                     # New password - root password
-    "${var.ssh_password}<wait><enter><wait>",                     # Weak password warning - root password
-    "${var.ssh_password}<wait><enter><wait><wait>",               # Retype new password - root password
-    "${local.selector_random_number_generator[var.arch]}<wait5>", # Random number generator; not now - only for aarch64
-    "g<wait><enter><wait>",                                       # Configure the additional items - Enable sshd
-    "h<wait><enter><wait>",                                       # Configure the additional items - Enable ntpd
-    "k<wait><enter><wait>",                                       # Configure the additional items - Enable xdm
-    "x<wait><enter><wait5>",                                      # Configure the additional items - Finished configuring
-    "<wait><enter><wait5>",                                       # Hit enter to continue
-    "x<wait><enter><wait5>",                                      # Exit Install System
+    "1<wait10><wait10><wait5>",                                 # Welcome message
+    "a<wait><enter><wait>",                                     # Installation messages in English
+    "${local.selector_keyboard_type[var.arch]}",                # Keyboard type - US English; skip for aarch64
+    "a<wait><enter><wait>",                                     # NetBSD-11.0 Install System - Install NewtBSD to hard disk
+    "b<wait><enter><wait>",                                     # Shall we continue? - Yes
+    "a<wait><enter><wait>",                                     # Available disks - sd0
+    "a<wait><enter><wait>",                                     # Select a partitioning scheme - GPT
+    "${local.selector_partition_geometry[var.arch]}",           # Partition geometry - This is correct geometry; skip for aarch64
+    "b<wait><enter><wait>",                                     # Partition sizes - Use default partition sizes
+    "x<wait><enter><wait>",                                     # Review partition sizes - Partition sizes ok
+    "b<enter><wait10><wait10><wait10><wait>",                   # Shall we continue? - Yes
+    "${local.selector_bootblocks[var.arch]}",                   # Select bootblocks - Use BIOS console; skip for aarch64
+    "d<wait><enter><wait>",                                     # Select distribution - Custom installation
+    "${local.selector_compiler_tools[var.arch]}",               # Distribution sets - Compiler tools - f (i386: e)
+    "${local.selector_manual_pages[var.arch]}",                 # Distribution sets - Manual pages - i (i386: h)
+    "${local.selector_text_processors[var.arch]}",              # Distribution sets - Text processing tools - m (i386: l)
+    "${local.selector_x11[var.arch]}",                          # Distribution sets - X11 sets - n (i386: m)
+    "f<wait><enter><wait>",                                     # Distribution sets - X11 sets - Select all the above sets
+    "b<wait><enter><wait>",                                     # Distribution sets - X11 sets - but X11 programming
+    "x<wait><enter><wait>",                                     # Distribution sets - X11 sets - Install selected X11 sets
+    "x<wait><enter><wait>",                                     # Distribution sets - Install selected sets
+    "a<enter><wait10><wait10><wait10><wait10><wait10><wait10>", # Install from - CD-ROM
+    "<wait10><wait10>",                                         # Wait for installation
+    "<wait5><enter><wait5>",                                    # The extraction of the selected sets for NetBSD is complete - Hit Enter to continue
+    "${var.ssh_password}<wait><enter><wait>",                   # New password - root password
+    "${var.ssh_password}<wait><enter><wait>",                   # Weak password warning - root password
+    "${var.ssh_password}<wait><enter><wait><wait>",             # Retype new password - root password
+    "g<wait><enter><wait>",                                     # Configure the additional items - Enable sshd
+    "h<wait><enter><wait>",                                     # Configure the additional items - Enable ntpd
+    "k<wait><enter><wait>",                                     # Configure the additional items - Enable xdm
+    "x<wait><enter><wait5>",                                    # Configure the additional items - Finished configuring
+    "<wait><enter><wait5>",                                     # Hit enter to continue
+    "x<wait><enter><wait5>",                                    # Exit Install System
   ]
   install_script_common = [
     "dhcpcd<wait><enter><wait10><wait5>",
@@ -392,11 +399,6 @@ locals {
     "i386" : "n<wait><enter><wait>",
     "aarch64" : "o<wait><enter><wait>"
   }
-  selector_random_number_generator = {
-    "amd64" : "",
-    "i386" : "",
-    "aarch64" : "x<wait><enter><wait>"
-  }
   selector_install_script = {
     "generic" : [
       "cat >> /mnt/etc/rc.conf << EOF",
@@ -425,16 +427,6 @@ locals {
       "EOF",
       "echo \"nameserver $GATEWAY\" > /mnt/etc/resolv.conf"
     ]
-  }
-  wait_for_MAKEDEV = {
-    "amd64" : "",
-    "i386" : ""
-    "aarch64" : "<enter><wait5>"
-  }
-  wait_for_certctl = {
-    "amd64" : "",
-    "i386" : ""
-    "aarch64" : "<enter><wait5>"
   }
   vm_name = "${var.vm_name}-${var.variant}-v${var.box_ver}-${var.arch}"
 }
@@ -655,11 +647,45 @@ source "vmware-iso" "esxi" {
   vnc_over_websocket = "${var.esxi_vnc_over_websocket}"
 }
 
+source "utm-iso" "default" {
+  boot_command = concat(
+    local.boot_command_common,
+    split("\n", format(join("\n", local.install_script_common), "ld4", var.partition_name))
+  )
+  boot_nopause          = true
+  boot_wait             = var.boot_wait
+  cpus                  = var.num_cpus
+  display_hardware_type = "virtio-gpu-pci"
+  display_nopause       = true
+  disk_size             = var.disk_size
+  export_nopause        = true
+  guest_additions_mode  = "disable"
+  http_content = {
+    "/install.sh" = templatefile("${path.root}/install.sh.pkrtpl.hcl", {
+      lines = local.selector_install_script["generic"]
+    })
+  }
+  hypervisor       = true
+  iso_checksum     = var.iso_checksum
+  iso_urls         = local.iso_urls
+  keep_registered  = var.utm_keep_registered
+  memory           = var.mem_size
+  output_directory = "output/${local.vm_name}-utm"
+  ssh_username     = var.ssh_username
+  ssh_password     = var.ssh_password
+  shutdown_command = "/sbin/shutdown -p now"
+  uefi_boot        = true
+  vm_backend       = "qemu"
+  vm_icon          = "netbsd"
+  vm_name          = "${local.vm_name}"
+}
+
 build {
   sources = [
     "source.hyperv-iso.default",
     "source.parallels-iso.default",
     "source.qemu.default",
+    "source.utm-iso.default",
     "source.virtualbox-iso.default",
     "source.vmware-iso.default",
     "source.vmware-iso.esxi"
@@ -738,5 +764,15 @@ build {
     ]
     output               = "./${local.vm_name}-{{ .Provider }}.box"
     vagrantfile_template = "../vagrantfiles/Vagrantfile.NetBSD-8.3+"
+  }
+
+  post-processor "utm-vagrant" {
+    compression_level = 9
+    only = [
+      "utm-iso.default"
+    ]
+    output               = "./${local.vm_name}-{{ .Provider }}.box"
+    vagrantfile_template = "../vagrantfiles/Vagrantfile.NetBSD-8.3+"
+    architecture         = "arm64"
   }
 }
