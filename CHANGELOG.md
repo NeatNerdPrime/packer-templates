@@ -9,6 +9,7 @@
   * [Devuan](devuan/README.md): Add templates for Devuan 6.1.
   * [FreeBSD](freebsd/README.md): Add templates for FreeBSD 15.0-RELEASE.
 * Changed
+  * [AGENTS.md](AGENTS.md): Update the instruction for Alpine Linux.
   * [Alpine 3.19](alpine/alpine-3.19/README.md): Upgrade templates to
     Alpine Linux 3.19.9.
   * [Alpine 3.20](alpine/alpine-3.20/README.md): Upgrade templates to
@@ -17,9 +18,8 @@
     Alpine Linux 3.21.6.
   * [Alpine 3.22](alpine/alpine-3.22/README.md): Upgrade templates to
     Alpine Linux 3.22.3.
-  * [AGENTS.md](AGENTS.md): Update the instruction for Alpine Linux.
-  * [Debian 13](debian/debian-13/README.md): Upgrade templates to
-    Debian 13.4.
+  * [Debian 13](debian/debian-13/README.md): Upgrade templates to Debian
+    13.4.
   * [NetBSD 11.0](netbsd/netbsd-11/README.md):
     * Upgrade templates to NetBSD 11.0_RC3.
     * Merge standalone [UTM][] template into the main minimal template,

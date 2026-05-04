@@ -8,21 +8,23 @@ if [ "$HAL" ]; then
 fi
 
 cp /etc/X11/xdm/Xresources /tmp/Xresources
-sed 's/^XConsole\(.*\)/!XConsole\1/' /tmp/Xresources > /etc/X11/xdm/Xresources
+sed 's/^XConsole\(.*\)/!XConsole\1/' /tmp/Xresources >/etc/X11/xdm/Xresources
 rm /tmp/Xresources
 cp /etc/X11/xdm/xdm-config /tmp/xdm-config
-sed 's/^DisplayManager\._0\(.*\)/!DisplayManager._0\1/' /tmp/xdm-config > /etc/X11/xdm/xdm-config
+sed 's/^DisplayManager\._0\(.*\)/!DisplayManager._0\1/' /tmp/xdm-config >/etc/X11/xdm/xdm-config
 rm /tmp/xdm-config
-echo "DisplayManager*authName:        MIT-MAGIC-COOKIE-1" >> /etc/X11/xdm/xdm-config
+echo "DisplayManager*authName:        MIT-MAGIC-COOKIE-1" >>/etc/X11/xdm/xdm-config
 
 HAL=${HAL%%-*}
 for f in famd dbus $HAL; do test -f "$f" && cp /usr/pkg/share/examples/rc.d/"$f" /etc/rc.d/; done
 
 for f in rpcbind famd dbus $HAL; do
-	echo "$f=YES" >> /etc/rc.conf
+	echo "$f=YES" >>/etc/rc.conf
 done
 
-(cd /usr/pkg/etc/xdg/xfce4/; patch -p6 << 'EOF')
+(
+	cd /usr/pkg/etc/xdg/xfce4/
+	patch -p6 <<'EOF'
 --- /usr/pkg/etc/xdg/xfce4/xinitrc.orig 2026-01-23 00:00:00.00000000 +0000
 +++ /usr/pkg/etc/xdg/xfce4/xinitrc      2026-01-23 00:00:00.00000000 +0000
 @@ -83,6 +83,17 @@
@@ -44,8 +46,9 @@ done
  # all the env vars it needs to properly populate the environment of child
  # processes
 EOF
+)
 
-cat > /home/"$VAGRANT_USER"/.xinitrc << 'EOF'
+cat >/home/"$VAGRANT_USER"/.xinitrc <<'EOF'
 #!/bin/sh
 
 userresources=$HOME/.Xresources
@@ -56,19 +59,19 @@ sysmodmap=/etc/X11/xinit/.Xmodmap
 # merge in defaults and keymaps
 
 if [ -f $sysresources ]; then
-    xrdb -merge $sysresources
+	xrdb -merge $sysresources
 fi
 
 if [ -f $sysmodmap ]; then
-    xmodmap $sysmodmap
+	xmodmap $sysmodmap
 fi
 
 if [ -f "$userresources" ]; then
-    xrdb -merge "$userresources"
+	xrdb -merge "$userresources"
 fi
 
 if [ -f "$usermodmap" ]; then
-    xmodmap "$usermodmap"
+	xmodmap "$usermodmap"
 fi
 
 # start some nice programs
@@ -82,7 +85,7 @@ fi
 exec xfce4-session
 EOF
 
-cat > /home/"$VAGRANT_USER"/.xsession << 'EOF'
+cat >/home/"$VAGRANT_USER"/.xsession <<'EOF'
 #!/bin/sh
 ENV=$HOME/.shrc
 export ENV

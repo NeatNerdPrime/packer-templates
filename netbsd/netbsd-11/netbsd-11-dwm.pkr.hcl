@@ -39,13 +39,13 @@ variable "arch" {
 
 variable "boot_wait" {
   type        = string
-  default     = "5s"
+  default     = "10s"
   description = "Override `boot_wait` default setting (10s)"
 }
 
 variable "box_ver" {
   type    = string
-  default = "2.20260306"
+  default = "3.20260404"
 }
 
 variable "disk_size" {
@@ -140,17 +140,17 @@ variable "hyperv_switch_name" {
 
 variable "iso_checksum" {
   type    = string
-  default = "file:https://cdn.netbsd.org/pub/NetBSD/images/11.0_RC2/SHA512"
+  default = "file:https://cdn.netbsd.org/pub/NetBSD/images/11.0_RC3/SHA512"
 }
 
 variable "iso_file_name" {
   type    = string
-  default = "NetBSD-11.0_RC2-amd64.iso"
+  default = "NetBSD-11.0_RC3-amd64.iso"
 }
 
 variable "iso_path" {
   type    = string
-  default = "NetBSD/images/11.0_RC2"
+  default = "NetBSD/images/11.0_RC3"
 }
 
 variable "iso_url" {
@@ -228,6 +228,12 @@ variable "qemu_display" {
   default = ""
 }
 
+variable "qemu_ipv4_prefer" {
+  type        = string
+  default     = "YES"
+  description = "Prefer IPv4 over IPv6 for QEMU and UTM box"
+}
+
 variable "qemu_use_default_display" {
   type    = string
   default = "true"
@@ -241,6 +247,18 @@ variable "ssh_password" {
 variable "ssh_username" {
   type    = string
   default = "root"
+}
+
+variable "utm_disk_name" {
+  type = string
+  default = "ld4"
+  description = "Disk name for UTM box"
+}
+
+variable "utm_keep_registered" {
+  type        = bool
+  default     = false
+  description = "Set this to true to keep the VM registered with UTM"
 }
 
 variable "vagrant_group" {
@@ -310,12 +328,6 @@ variable "vmware_network_adapter_type" {
   type        = string
   default     = "e1000"
   description = "Network adapter type for VMware box."
-}
-
-variable "utm_keep_registered" {
-  type        = bool
-  default     = false
-  description = "Set this to true to keep the VM registered with UTM"
 }
 
 locals {
@@ -426,6 +438,25 @@ locals {
       "defaultroute=$GATEWAY",
       "EOF",
       "echo \"nameserver $GATEWAY\" > /mnt/etc/resolv.conf"
+    ],
+    "qemu" : [
+      "cat << EOF >> /mnt/etc/rc.conf",
+      "#critical_filesystems_local=/var",
+      "dhcpcd=YES",
+      "rpcbind=YES",
+      "#nfs_client=YES",
+      "no_swap=YES",
+      "lockd=YES",
+      "statd=YES",
+      "hostname=\"$HOSTNAME\"",
+      "EOF",
+      "if [ \"$QEMU_IPV4_PREFER\" = \"YES\" ]; then",
+      "	cat <<-EOF >> /mnt/etc/rc.conf",
+      "	ip6addrctl=YES",
+      "	ip6addrctl_policy=\"ipv4_prefer\"",
+      "	dhcpcd_flags=\"-4\"",
+      "	EOF",
+      "fi"
     ]
   }
   vm_name = "${var.vm_name}-${var.variant}-v${var.box_ver}-${var.arch}"
@@ -491,9 +522,11 @@ source "parallels-iso" "default" {
 source "qemu" "default" {
   accelerator = var.qemu_accelerator
   boot_command = concat(
-    local.boot_command_common,
-    split("\n", format(join("\n", local.install_script_common), var.qemu_disk_name, var.partition_name))
-  )
+    local.boot_command_common, [
+      "dhcpcd<wait><enter><wait10><wait5>",
+      "ftp -o /tmp/install.sh http://{{ .HTTPIP }}:{{ .HTTPPort }}/install.sh<wait><enter><wait5>",
+      "HTTPSERVER={{ .HTTPIP }}:{{ .HTTPPort }} DISK=${var.utm_disk_name} PARTITION=${var.partition_name} HOSTNAME=${var.hostname} QEMU_IPV4_PREFER=${var.qemu_ipv4_prefer} sh /tmp/install.sh<wait><enter><wait5>"
+  ])
   boot_wait      = var.boot_wait
   disk_interface = "virtio-scsi"
   display        = var.qemu_display
@@ -501,7 +534,7 @@ source "qemu" "default" {
   headless       = var.headless
   http_content = {
     "/install.sh" = templatefile("${path.root}/install.sh.pkrtpl.hcl", {
-      lines = local.selector_install_script["generic"]
+      lines = local.selector_install_script["qemu"]
     })
   }
   iso_checksum     = var.iso_checksum
@@ -523,6 +556,41 @@ source "qemu" "default" {
   ssh_username        = var.ssh_username
   use_default_display = var.qemu_use_default_display
   vm_name             = "${local.vm_name}"
+}
+
+source "utm-iso" "default" {
+  boot_command = concat(
+    local.boot_command_common, [
+      "dhcpcd<wait><enter><wait10><wait5>",
+      "ftp -o /tmp/install.sh http://{{ .HTTPIP }}:{{ .HTTPPort }}/install.sh<wait><enter><wait5>",
+      "HTTPSERVER={{ .HTTPIP }}:{{ .HTTPPort }} DISK=${var.qemu_disk_name} PARTITION=${var.partition_name} HOSTNAME=${var.hostname} QEMU_IPV4_PREFER=${var.qemu_ipv4_prefer} sh /tmp/install.sh<wait><enter><wait5>"
+  ])
+  boot_nopause          = true
+  boot_wait             = var.boot_wait
+  cpus                  = var.num_cpus
+  display_hardware_type = "virtio-gpu-pci"
+  display_nopause       = true
+  disk_size             = var.disk_size
+  export_nopause        = true
+  guest_additions_mode  = "disable"
+  http_content = {
+    "/install.sh" = templatefile("${path.root}/install.sh.pkrtpl.hcl", {
+      lines = local.selector_install_script["qemu"]
+    })
+  }
+  hypervisor       = true
+  iso_checksum     = var.iso_checksum
+  iso_urls         = local.iso_urls
+  keep_registered  = var.utm_keep_registered
+  memory           = var.mem_size
+  output_directory = "output/${local.vm_name}-utm"
+  ssh_username     = var.ssh_username
+  ssh_password     = var.ssh_password
+  shutdown_command = "/sbin/shutdown -p now"
+  uefi_boot        = true
+  vm_backend       = "qemu"
+  vm_icon          = "netbsd"
+  vm_name          = "${local.vm_name}"
 }
 
 source "virtualbox-iso" "default" {
@@ -647,39 +715,6 @@ source "vmware-iso" "esxi" {
   vnc_over_websocket = "${var.esxi_vnc_over_websocket}"
 }
 
-source "utm-iso" "default" {
-  boot_command = concat(
-    local.boot_command_common,
-    split("\n", format(join("\n", local.install_script_common), "ld4", var.partition_name))
-  )
-  boot_nopause          = true
-  boot_wait             = var.boot_wait
-  cpus                  = var.num_cpus
-  display_hardware_type = "virtio-gpu-pci"
-  display_nopause       = true
-  disk_size             = var.disk_size
-  export_nopause        = true
-  guest_additions_mode  = "disable"
-  http_content = {
-    "/install.sh" = templatefile("${path.root}/install.sh.pkrtpl.hcl", {
-      lines = local.selector_install_script["generic"]
-    })
-  }
-  hypervisor       = true
-  iso_checksum     = var.iso_checksum
-  iso_urls         = local.iso_urls
-  keep_registered  = var.utm_keep_registered
-  memory           = var.mem_size
-  output_directory = "output/${local.vm_name}-utm"
-  ssh_username     = var.ssh_username
-  ssh_password     = var.ssh_password
-  shutdown_command = "/sbin/shutdown -p now"
-  uefi_boot        = true
-  vm_backend       = "qemu"
-  vm_icon          = "netbsd"
-  vm_name          = "${local.vm_name}"
-}
-
 build {
   sources = [
     "source.hyperv-iso.default",
@@ -700,6 +735,30 @@ build {
 
   provisioner "shell" {
     environment_vars = [
+      "DOAS=doas-6.3p2nb1",
+      "RSYNC=rsync-3.4.1",
+      "VAGRANT_GROUP=${var.vagrant_group}",
+      "VAGRANT_PASSWORD=${var.vagrant_password}",
+      "VAGRANT_USER=${var.vagrant_username}"
+    ]
+    execute_command = "chmod +x {{ .Path }}; {{ .Vars }} PATH=$PATH:/usr/sbin {{ .Path }}"
+    script = "../provisioners/vagrant_netbsd8+.sh"
+  }
+
+  provisioner "shell" {
+    environment_vars = [
+      "QEMU_GUEST_AGENT=qemu-guest-agent-10.1.3"
+    ]
+    execute_command = "chmod +x {{ .Path }}; {{ .Vars }} PATH=$PATH:/usr/sbin {{ .Path }}"
+    only = [
+      "qemu.default",
+      "utm-iso.default"
+    ]
+    script = "../provisioners/qemu.sh"
+  }
+
+  provisioner "shell" {
+    environment_vars = [
       "OPEN_VM_TOOLS=open-vm-tools-12.5.4"
       #      "XF86_INPUT_VMMOUSE=xf86-input-vmmouse",
       #      "XF86_VIDEO_VMWARE=xf86-video-vmware"
@@ -713,22 +772,16 @@ build {
 
   provisioner "shell" {
     environment_vars = [
-      "DOAS=doas-6.3p2nb1",
       "DMENU=dmenu-5.4",
       "DWM=dwm-6.6",
-      "RSYNC=rsync-3.4.1",
       "ST_TERM=st-term-0.9.3",
       "VAGRANT_GROUP=${var.vagrant_group}",
-      "VAGRANT_PASSWORD=${var.vagrant_password}",
       "VAGRANT_USER=${var.vagrant_username}",
       "X11VNC=x11vnc-0.9.17nb1",
       "XRANDR=xrandr-1.5.3"
     ]
     execute_command = "chmod +x {{ .Path }}; {{ .Vars }} PATH=$PATH:/usr/sbin {{ .Path }}"
-    scripts = [
-      "../provisioners/vagrant_netbsd8+.sh",
-      "../provisioners/dwm+st+dmenu_netbsd9.3+.sh"
-    ]
+    script = "../provisioners/dwm+st+dmenu_netbsd9.3+.sh"
   }
 
   provisioner "shell" {
