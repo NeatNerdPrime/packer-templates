@@ -24,6 +24,7 @@
     * Upgrade templates to NetBSD 11.0_RC3.
     * Merge standalone [UTM][] template into the main minimal template,
       making UTM builder available alongside other builders.
+    * Update README document with new build parameters.
 
 ## [20260310][]
 

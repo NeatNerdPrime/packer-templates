@@ -226,10 +226,15 @@ boxes:
 The following parameters can be set at build time by supplying `-var`
 or `-var-file` command line options to `packer`:
 
+* `arch` - Target architecture.  Default value is `amd64`.  Valid values
+  are `amd64`, `i386`, and `aarch64`.
 * `boot_wait` - Override `boot_wait` default setting, which is `10s`.
+* `box_ver` - Vagrant box version.  Default value is `3.20260404`.
 * `disk_size` - Disk size of the created VM.  Default value is `40960`
   which means 40GB.
-* `esxi_disk_name`
+* `dist_server` - Distribution server for ISO downloads.  Default value
+  is `http://cdn.netbsd.org`.
+* `esxi_disk_name` - Disk name for ESXi box.  Default value is `sd0`.
 * `esxi_remote_datastore` - ESXi datastore name where a VM image will
   be created.
 * `esxi_remote_host` - ESXi host name or IP address.
@@ -242,7 +247,7 @@ or `-var-file` command line options to `packer`:
 * `hostname` - Host name of the created VM.  Default value is `vagrant`.
 * `headless` - Launch the virtual machine in headless mode if set to
   `true`.  Defaults to `false`.
-* `hyperv_disk_name`
+* `hyperv_disk_name` - Disk name for Hyper-V box.  Default value is `sd0`.
 * `hyperv_gateway` - IP address of the gateway and the name server for
   the VM being built with Hyper-V builder.  You must provide an
   appropriate value.
@@ -254,13 +259,27 @@ or `-var-file` command line options to `packer`:
   builder.  You must provide an appropriate value.
 * `hyperv_switch_name` - Network switch name on Hyper-V builder.
   Default value is `Default Switch`.
+* `iso_checksum` - ISO checksum value or URL.  Default value is
+  `file:https://cdn.netbsd.org/pub/NetBSD/images/11.0_RC3/SHA512`.
+* `iso_file_name` - ISO filename.  Default value depends on architecture:
+  `NetBSD-11.0_RC3-amd64.iso`, `NetBSD-11.0_RC3-i386.iso`, or
+  `NetBSD-11.0_RC3-evbarm-aarch64.iso`.
+* `iso_path` - ISO path on the distribution server.  Default value is
+  `NetBSD/images/11.0_RC3`.
+* `iso_url` - Full path to the install media.  This URL will be the
+   first preference if set.
 * `mem_size` - RAM size of the created VM.  Default value is `512`
   which means 512MB.
 * `num_cpus` - Number of virtual CPUs.  Default value is 2.
+* `os_ver` - OS version.  Default value is `11`.
+* `package_arch` - Architecture for binary packages.  Default value is
+  `amd64`.
 * `package_branch` - pkgsrc branch name for binary packages to install.
-  Default value is `11.0_2026Q1`.
+  Default value is `11.0_2025Q4`.
 * `package_server` - Host name to download packages from.  Default value
   is `http://cdn.netbsd.org`.
+* `parallels_disk_name` - Disk name for Parallels box.  Default value is
+  `wd0`.
 * `parallels_netif` - Network interface for Parallels box.  Default
   value is `vtnet0`.
 * `partition_name` - Partition name of which NetBSD is install on.
@@ -269,34 +288,44 @@ or `-var-file` command line options to `packer`:
 * `qemu_binary` - Name of QEMU binary to invoke. Default value is
   `qemu-system-x86_64` for amd64 boxes and `qemu-system-i386` for i386
   boxes.
-* `qemu_disk_name`
+* `qemu_disk_name` - Disk name for QEMU box.  Default value is `sd0`.
 * `qemu_display` - Value for `-display` option for QEMU.  Default value
   is an empty string.
+* `qemu_ipv4_prefer` - Prefer IPv4 over IPv6 for QEMU and UTM box.
+  Default value is `YES`.
 * `qemu_use_default_display` - Do not pass `-display` option to QEMU if
   `true`.  Default value is `true`.
 * `ssh_password` - SSH password for `ssh_user` during build time.
   Default value is `vagrant`.
 * `ssh_username` - User name to login via SSH during build time.
   Default value is `root`.
-* `vagrant_group` - Group name that `vagrant_username` belongs to.
-  Default value is `vagrant`.
-* `vagrant_username` - User name during run time.  Vagrant box is set
-  for this user.  Default value is `vagrant`.
+* `utm_disk_name` - Disk name for UTM box.  Default value is `ld4`.
 * `utm_keep_registered` - Set to `true` to keep the VM registered with
   UTM after build.  Default value is `false`.
+* `vagrant_group` - Group name that `vagrant_username` belongs to.
+  Default value is `vagrant`.
 * `vagrant_password` - Password for `user_name`.  Default value is
   `vagrant`.
+* `vagrant_username` - User name during run time.  Vagrant box is set
+  for this user.  Default value is `vagrant`.
+* `variant` - Box variant.  Valid values are `minimal`, `xorg`, `dwm`,
+  and `xfce`.  Default depends on the template file used.
 * `vm_name` - VM name.  This also affects box file name and output
   directory name.
 * `vmware_cdrom_adapter_type` - CD-ROM adapter type for VMware box.
 * `vmware_disk_adapter_type` - Disk adapter type for VMware.  Defaults
   to `scsi`.
+* `vmware_disk_name` - Disk name for VMware box.  Default value is `sd0`.
 * `vmware_guest_os_type` - Guest OS type for VMware box.  Default value
   is `other-64`.
 * `vmware_hardware_version` - Hardware version for VMware.  Default
   value is `13`.
 * `vmware_network_adapter_type` - Network adapter type for VMware.
   Defaults to `e1000`.
+* `virtualbox_disk_name` - Disk name for VirtualBox box.  Default value
+  is `wd0`.
+* `virtualbox_guest_os_type` - Guest OS type for VirtualBox.  Default
+  value is `NetBSD_64`.
 
 - - -
 

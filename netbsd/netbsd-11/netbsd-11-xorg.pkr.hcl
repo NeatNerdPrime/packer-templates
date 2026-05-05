@@ -518,7 +518,7 @@ source "qemu" "default" {
     local.boot_command_common, [
       "dhcpcd<wait><enter><wait10><wait5>",
       "ftp -o /tmp/install.sh http://{{ .HTTPIP }}:{{ .HTTPPort }}/install.sh<wait><enter><wait5>",
-      "HTTPSERVER={{ .HTTPIP }}:{{ .HTTPPort }} DISK=${var.utm_disk_name} PARTITION=${var.partition_name} HOSTNAME=${var.hostname} QEMU_IPV4_PREFER=${var.qemu_ipv4_prefer} sh /tmp/install.sh<wait><enter><wait5>"
+      "HTTPSERVER={{ .HTTPIP }}:{{ .HTTPPort }} DISK=${var.qemu_disk_name} PARTITION=${var.partition_name} HOSTNAME=${var.hostname} QEMU_IPV4_PREFER=${var.qemu_ipv4_prefer} sh /tmp/install.sh<wait><enter><wait5>"
   ])
   boot_wait      = var.boot_wait
   disk_interface = "virtio-scsi"
@@ -556,7 +556,7 @@ source "utm-iso" "default" {
     local.boot_command_common, [
       "dhcpcd<wait><enter><wait10><wait5>",
       "ftp -o /tmp/install.sh http://{{ .HTTPIP }}:{{ .HTTPPort }}/install.sh<wait><enter><wait5>",
-      "HTTPSERVER={{ .HTTPIP }}:{{ .HTTPPort }} DISK=${var.qemu_disk_name} PARTITION=${var.partition_name} HOSTNAME=${var.hostname} QEMU_IPV4_PREFER=${var.qemu_ipv4_prefer} sh /tmp/install.sh<wait><enter><wait5>"
+      "HTTPSERVER={{ .HTTPIP }}:{{ .HTTPPort }} DISK=${var.utm_disk_name} PARTITION=${var.partition_name} HOSTNAME=${var.hostname} QEMU_IPV4_PREFER=${var.qemu_ipv4_prefer} sh /tmp/install.sh<wait><enter><wait5>"
   ])
   boot_nopause          = true
   boot_wait             = var.boot_wait
